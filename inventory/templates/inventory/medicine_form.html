@@ -37,7 +37,7 @@
             <form method="post">
                 {% csrf_token %}
 
-                <!-- Iterate over form fields -->
+                <!-- Iterate over all form fields including category -->
                 {% for field in form %}
                     <div class="mb-3">
                         <label for="{{ field.id_for_label }}" class="form-label {% if field.name in 'buying_price selling_price' %}currency{% endif %}">

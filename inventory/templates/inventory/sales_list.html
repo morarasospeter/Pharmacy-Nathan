@@ -72,7 +72,7 @@
     <!-- Top Buttons and Search -->
     <div class="top-buttons mb-3">
         <form method="GET" class="d-flex search-form mb-2" action="">
-            <input class="form-control me-2" type="search" placeholder="Search by Medicine Name" name="q" value="{{ request.GET.q }}">
+            <input class="form-control me-2" type="search" placeholder="Search by Medicine Name" name="q" value="{{ query }}">
             <button class="btn btn-primary" type="submit">Search</button>
         </form>
         <div class="mb-2">
@@ -81,17 +81,13 @@
         </div>
     </div>
 
-    <!-- Overall Summary Statistics -->
+    <!-- Summary Statistics -->
     <div class="summary text-light">
-        <div>Total Sales Records: {{ sales|length }}</div>
+        <div>Total Sales Records: {{ sales_data|length }}</div>
         <div>Total Profit: Ksh {{ total_profit }}</div>
-    </div>
-
-    <!-- Daily Sales Summary -->
-    <div class="summary text-warning">
-        <div>Items Sold Today: {{ daily_total_items_sold }}</div>
-        <div>Total Sales Today: Ksh {{ daily_total_sales }}</div>
-        <div>Total Profit Today: Ksh {{ daily_total_profit }}</div>
+        <div>Today's Sales: {{ todays_sales_data|length }}</div>
+        <div>Today's Total Sale: Ksh {{ todays_total_sales }}</div>
+        <div>Today's Profit: Ksh {{ todays_total_profit }}</div>
     </div>
 
     <h1 class="text-center mb-4">💰 Pharmacy Sales</h1>
@@ -112,26 +108,26 @@
                 </tr>
             </thead>
             <tbody>
-                {% for sale in sales %}
+                {% for item in sales_data %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ sale.medicine.name }}</td>
-                    <td>{{ sale.quantity_sold }}</td>
-                    <td>Ksh {{ sale.medicine.selling_price }}</td>
-                    <td>Ksh {{ sale.total_sale }}</td>
-                    <td>Ksh {{ sale.profit }}</td>
+                    <td>{{ item.sale.medicine.name }}</td>
+                    <td>{{ item.sale.quantity_sold }}</td>
+                    <td>Ksh {{ item.sale.medicine.selling_price }}</td>
+                    <td>Ksh {{ item.total_sale }}</td>
+                    <td>Ksh {{ item.profit }}</td>
                     <td>
-                        {% if sale.payment_mode == "Cash" %}
-                            <span class="badge bg-success">{{ sale.payment_mode }}</span>
-                        {% elif sale.payment_mode == "Card" %}
-                            <span class="badge bg-primary">{{ sale.payment_mode }}</span>
-                        {% elif sale.payment_mode == "Mobile Money" %}
-                            <span class="badge bg-warning text-dark">{{ sale.payment_mode }}</span>
+                        {% if item.sale.payment_mode == "Cash" %}
+                            <span class="badge bg-success">{{ item.sale.payment_mode }}</span>
+                        {% elif item.sale.payment_mode == "Card" %}
+                            <span class="badge bg-primary">{{ item.sale.payment_mode }}</span>
+                        {% elif item.sale.payment_mode == "Mobile" %}
+                            <span class="badge bg-warning text-dark">Mobile Payment</span>
                         {% else %}
-                            <span class="badge bg-secondary">{{ sale.payment_mode }}</span>
+                            <span class="badge bg-secondary">{{ item.sale.payment_mode }}</span>
                         {% endif %}
                     </td>
-                    <td>{{ sale.sale_date|date:"Y-m-d H:i" }}</td>
+                    <td>{{ item.sale.sale_date|date:"Y-m-d H:i" }}</td>
                 </tr>
                 {% empty %}
                 <tr>
