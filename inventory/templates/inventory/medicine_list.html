@@ -18,6 +18,10 @@
         .summary { margin-bottom: 15px; }
         .summary div { display: inline-block; margin-right: 20px; font-weight: bold; }
         .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        @media (max-width: 768px) {
+            .table th, .table td { font-size: 0.8rem; padding: 3px; }
+            .btn { font-size: 0.75rem; padding: 2px 5px; margin: 1px; }
+        }
     </style>
 </head>
 <body>
@@ -42,11 +46,10 @@
         <div>Total Stock Value: Ksh {{ total_stock_value }}</div>
     </div>
 
-    <h1 class="text-center mb-4">💊 Pharmacy Medicines</h1>
+    <h1 class="text-center mb-4">💊 Medicines</h1>
 
-    <!-- Loop through categories -->
-    {% for category in categories %}
-        <h2>{{ category.name }}</h2>
+    {% if query %}
+        <!-- If search is active, show only matched medicines in a single table -->
         <div class="table-responsive mb-4">
             <table class="table table-hover table-bordered text-center">
                 <thead>
@@ -55,8 +58,6 @@
                         <th>Quantity</th>
                         <th>Buying Price</th>
                         <th>Selling Price</th>
-                        <th>Total Value</th>
-                        <th>Profit per Unit</th>
                         <th>Expiry Date</th>
                         <th>Manufacturer</th>
                         <th>Stock Status</th>
@@ -65,17 +66,15 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for medicine in category.medicines.all %}
+                    {% for medicine in medicines %}
                         <tr class="{% if medicine in low_stock %}table-warning{% elif medicine in soon_to_expire %}table-danger{% endif %}">
                             <td class="text-truncate">{{ medicine.name }}</td>
                             <td>{{ medicine.quantity }}</td>
                             <td>Ksh {{ medicine.buying_price }}</td>
                             <td>Ksh {{ medicine.selling_price }}</td>
-                            <td>Ksh {{ medicine.total_value }}</td>
-                            <td>Ksh {{ medicine.profit_per_unit_value }}</td>
                             <td>{{ medicine.expiry_date }}</td>
                             <td class="text-truncate">{{ medicine.manufacturer }}</td>
-                            <td>{% if medicine.quantity < 10 %}Stock Low{% else %}—{% endif %}</td>
+                            <td>{% if medicine.quantity < 10 %}Low Stock{% else %}—{% endif %}</td>
                             <td>{% if medicine.expiry_date <= today_plus_30 %}Expiring{% else %}—{% endif %}</td>
                             <td>
                                 <a href="{% url 'medicine_edit' medicine.id %}" class="btn btn-warning btn-sm">Edit</a>
@@ -85,15 +84,60 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="11" class="text-center">No medicines in this category.</td>
+                            <td colspan="9" class="text-center">No medicines found.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-    {% empty %}
-        <p class="text-center">No categories available.</p>
-    {% endfor %}
+    {% else %}
+        <!-- Otherwise, show medicines grouped by categories -->
+        {% for category in categories %}
+            <h2>{{ category.name }}</h2>
+            <div class="table-responsive mb-4">
+                <table class="table table-hover table-bordered text-center">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Quantity</th>
+                            <th>Buying Price</th>
+                            <th>Selling Price</th>
+                            <th>Expiry Date</th>
+                            <th>Manufacturer</th>
+                            <th>Low stock</th>
+                            <th>Expiry Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for medicine in category.medicines.all %}
+                            <tr class="{% if medicine in low_stock %}table-warning{% elif medicine in soon_to_expire %}table-danger{% endif %}">
+                                <td class="text-truncate">{{ medicine.name }}</td>
+                                <td>{{ medicine.quantity }}</td>
+                                <td>Ksh {{ medicine.buying_price }}</td>
+                                <td>Ksh {{ medicine.selling_price }}</td>
+                                <td>{{ medicine.expiry_date }}</td>
+                                <td class="text-truncate">{{ medicine.manufacturer }}</td>
+                                <td>{% if medicine.quantity < 10 %}Low Stock{% else %}—{% endif %}</td>
+                                <td>{% if medicine.expiry_date <= today_plus_30 %}Expiring{% else %}—{% endif %}</td>
+                                <td>
+                                    <a href="{% url 'medicine_edit' medicine.id %}" class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="{% url 'medicine_delete' medicine.id %}" class="btn btn-danger btn-sm">Delete</a>
+                                    <a href="{% url 'medicine_sell' medicine.id %}" class="btn btn-success btn-sm">Sell</a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="9" class="text-center">No medicines in this category.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% empty %}
+            <p class="text-center">No categories available.</p>
+        {% endfor %}
+    {% endif %}
 </div>
 </body>
 </html>

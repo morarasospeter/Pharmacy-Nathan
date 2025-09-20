@@ -23,6 +23,10 @@
             table-layout: fixed;
             word-wrap: break-word;
         }
+        .table th, .table td {
+            padding: 5px;
+            font-size: 0.9rem;
+        }
         .table th {
             background: #415a77;
             color: #fff;
@@ -60,10 +64,21 @@
         }
         .badge {
             font-size: 0.9em;
-            padding: 0.5em 0.75em;
+            padding: 0.4em 0.7em;
         }
         .table-responsive {
             overflow-x: auto;
+        }
+        @media (max-width: 768px) {
+            .table th, .table td {
+                font-size: 0.8rem;
+                padding: 3px;
+            }
+            .btn {
+                font-size: 0.75rem;
+                padding: 2px 5px;
+                margin: 1px;
+            }
         }
     </style>
 </head>
@@ -90,7 +105,7 @@
         <div>Today's Profit: Ksh {{ todays_total_profit }}</div>
     </div>
 
-    <h1 class="text-center mb-4">💰 Pharmacy Sales</h1>
+    <h1 class="text-center mb-4">💰 Sales</h1>
 
     <!-- Sales Table -->
     <div class="table-responsive">
@@ -111,7 +126,7 @@
                 {% for item in sales_data %}
                 <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ item.sale.medicine.name }}</td>
+                    <td class="text-truncate">{{ item.sale.medicine.name }}</td>
                     <td>{{ item.sale.quantity_sold }}</td>
                     <td>Ksh {{ item.sale.medicine.selling_price }}</td>
                     <td>Ksh {{ item.total_sale }}</td>

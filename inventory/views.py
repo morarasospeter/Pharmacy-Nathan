@@ -37,17 +37,22 @@ def user_logout(request):
 @login_required
 def medicine_list(request):
     query = request.GET.get('q')
+    
     if query:
+        # Only display medicines that match search query
         medicines = Medicine.objects.filter(
             Q(name__icontains=query) | Q(manufacturer__icontains=query)
-        )
+        ).order_by('name')
+        categories = None  # hide categories when searching
     else:
-        medicines = Medicine.objects.all()
+        medicines = Medicine.objects.all().order_by('name')
+        categories = Category.objects.prefetch_related('medicines').all()
 
     low_stock = medicines.filter(quantity__lt=10)
     today_plus_30 = timezone.now().date() + timedelta(days=30)
     soon_to_expire = medicines.filter(expiry_date__lte=today_plus_30)
 
+    # Calculate total value and profit per unit
     for med in medicines:
         med.total_value = med.quantity * med.buying_price
         med.profit_per_unit_value = med.selling_price - med.buying_price
@@ -55,7 +60,6 @@ def medicine_list(request):
     total_quantity = sum(m.quantity for m in medicines)
     total_stock_value = sum(m.total_value for m in medicines)
     normal_stock_count = medicines.count() - low_stock.count()
-    categories = Category.objects.prefetch_related('medicines').all()
 
     context = {
         'medicines': medicines,
@@ -140,10 +144,11 @@ def medicine_sell(request, id):
 def sales_list(request):
     query = request.GET.get('q')
     sales = Sale.objects.select_related('medicine').all().order_by('-id')
+
     if query:
+        # Filter only sales for searched medicine
         sales = sales.filter(medicine__name__icontains=query)
 
-    # Dynamically calculate total_sale and profit
     sales_data = []
     total_profit = 0
     today = timezone.now().date()
