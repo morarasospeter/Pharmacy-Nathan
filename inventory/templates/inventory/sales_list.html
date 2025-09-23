@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales - Pharmacy System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0d1b2a;
+            color: #ffffff;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        h1 {
+            color: #f8f9fa;
+            text-shadow: 1px 1px 5px #000;
+        }
+        .table {
+            background: #1b263b;
+            color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            table-layout: fixed;
+            word-wrap: break-word;
+        }
+        .table th, .table td {
+            padding: 5px;
+            font-size: 0.9rem;
+        }
+        .table th {
+            background: #415a77;
+            color: #fff;
+        }
+        .table tr:hover {
+            background: #778da9;
+            color: #000;
+        }
+        .btn-custom {
+            background-color: #e0aaff;
+            color: black;
+            border-radius: 10px;
+            transition: 0.3s;
+        }
+        .btn-custom:hover {
+            background-color: #c77dff;
+            color: white;
+        }
+        .top-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .summary {
+            margin-bottom: 15px;
+        }
+        .summary div {
+            display: inline-block;
+            margin-right: 20px;
+            font-weight: bold;
+        }
+        .search-form input, .search-form button {
+            border-radius: 6px;
+        }
+        .badge {
+            font-size: 0.9em;
+            padding: 0.4em 0.7em;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        @media (max-width: 768px) {
+            .table th, .table td {
+                font-size: 0.8rem;
+                padding: 3px;
+            }
+            .btn {
+                font-size: 0.75rem;
+                padding: 2px 5px;
+                margin: 1px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Top Buttons and Search -->
+    <div class="top-buttons mb-3">
+        <form method="GET" class="d-flex search-form mb-2" action="">
+            <input class="form-control me-2" type="search" placeholder="Search by Medicine Name" name="q" value="{{ query }}">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </form>
+        <div class="mb-2">
+            <a href="{% url 'medicine_list' %}" class="btn btn-custom">Back to Medicines</a>
+            <a href="{% url 'user_logout' %}" class="btn btn-danger">Logout</a>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="summary text-light">
+        <div>Total Sales Records: {{ sales_data|length }}</div>
+        <div>Total Profit: Ksh {{ total_profit }}</div>
+        <div>Today's Sales: {{ todays_sales_data|length }}</div>
+        <div>Today's Total Sale: Ksh {{ todays_total_sales }}</div>
+        <div>Today's Profit: Ksh {{ todays_total_profit }}</div>
+    </div>
+
+    <h1 class="text-center mb-4">💰 Sales</h1>
+
+    <!-- Sales Table -->
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered text-center">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Medicines Sold</th>
+                    <th>Quantity</th>
+                    <th>Selling Price (Ksh)</th>
+                    <th>Total Sale (Ksh)</th>
+                    <th>Profit (Ksh)</th>
+                    <th>Mode of Payment</th>
+                    <th>Date Sold</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sale_item in sales_data %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        {% for item in sale_item.items_info %}
+                            {{ item.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for item in sale_item.items_info %}
+                            {{ item.quantity }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for item in sale_item.items_info %}
+                            Ksh {{ item.price }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>Ksh {{ sale_item.total_sale }}</td>
+                    <td>Ksh {{ sale_item.profit }}</td>
+                    <td>
+                        {% if sale_item.sale.payment_mode == "Cash" %}
+                            <span class="badge bg-success">{{ sale_item.sale.payment_mode }}</span>
+                        {% elif sale_item.sale.payment_mode == "Card" %}
+                            <span class="badge bg-primary">{{ sale_item.sale.payment_mode }}</span>
+                        {% elif sale_item.sale.payment_mode == "Mobile" %}
+                            <span class="badge bg-warning text-dark">Mobile Payment</span>
+                        {% else %}
+                            <span class="badge bg-secondary">{{ sale_item.sale.payment_mode }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ sale_item.sale.sale_date|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        <form method="POST" action="{% url 'sale_delete' sale_item.sale.id %}" onsubmit="return confirm('Are you sure you want to delete this sale?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center">No sales records found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
