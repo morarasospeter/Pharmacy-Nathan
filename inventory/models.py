@@ -13,6 +13,7 @@ class Category(models.Model):
 class Medicine(models.Model):
     name = models.CharField(max_length=100)
     quantity = models.PositiveIntegerField()
+    total_medicines = models.PositiveIntegerField(default=0)  # new field added
     buying_price = models.DecimalField(max_digits=10, decimal_places=2)
     selling_price = models.DecimalField(max_digits=10, decimal_places=2)
     expiry_date = models.DateField()
@@ -88,7 +89,9 @@ def update_stock_on_save(sender, instance, created, **kwargs):
         # adjust by the difference
         difference = instance.quantity - instance._old_quantity
         medicine.quantity -= difference
-    medicine.save(update_fields=["quantity"])
+    # Keep total_medicines in sync
+    medicine.total_medicines = medicine.quantity
+    medicine.save(update_fields=["quantity", "total_medicines"])
 
 
 # 3. Restore stock when sale item is deleted
@@ -96,4 +99,6 @@ def update_stock_on_save(sender, instance, created, **kwargs):
 def restore_stock_on_delete(sender, instance, **kwargs):
     medicine = instance.medicine
     medicine.quantity += instance.quantity
-    medicine.save(update_fields=["quantity"])
+    # Keep total_medicines in sync
+    medicine.total_medicines = medicine.quantity
+    medicine.save(update_fields=["quantity", "total_medicines"])
