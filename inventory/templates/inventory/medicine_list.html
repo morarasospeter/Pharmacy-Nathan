@@ -1,36 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title> GIBRAVEL Pharmacy System</title>
+    <title>GIBRAVEL Pharmacy System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #0d1b2a; color: #ffffff; }
-        .container { margin-top: 30px; }
-        h1 { color: #f8f9fa; text-shadow: 1px 1px 5px #000; }
-        h2 { color: #ffd700; margin-top: 30px; }
-        .table { background: #1b263b; color: #ffffff; border-radius: 10px; overflow: hidden; table-layout: fixed; word-wrap: break-word; }
-        .table th, .table td { padding: 5px; font-size: 0.9rem; }
-        .table th { background: #415a77; color: #fff; }
-        .table tr:hover { background: #778da9; color: #000; }
-        .btn-custom { background-color: #e0aaff; color: black; border-radius: 10px; transition: 0.3s; }
-        .btn-custom:hover { background-color: #c77dff; color: white; }
-        .top-buttons { display: flex; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; }
-        .summary { margin-bottom: 15px; }
-        .summary div { display: inline-block; margin-right: 20px; font-weight: bold; }
-        .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .btn-sale { background-color: #87ceeb; color: #000; border-radius: 10px; padding: 5px 10px; text-decoration: none; margin-right: 5px; }
-        .btn-sale:hover { background-color: #00bfff; color: #fff; }
+        body { 
+            background-color: #000000; 
+            color: #ffffff; 
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container { margin-top: 20px; }
+        h1 { color: #ffffff; text-shadow: 1px 1px 5px #111; }
+        h2 { color: #ffd700; margin-top: 20px; }
+        .table { 
+            background: #1a1a1a; 
+            color: #ffffff; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            table-layout: fixed; 
+            word-wrap: break-word; 
+        }
+        .table th, .table td { 
+            padding: 6px; 
+            font-size: 0.9rem; 
+            border: 1px solid #333; 
+        }
+        .table th { 
+            background: #333333; 
+            color: #ffffff; 
+        }
+        .table tr:hover { 
+            background: #444444; 
+            color: #ffffff; 
+        }
+        .btn-custom { 
+            background-color: #28a745; 
+            color: white; 
+            border-radius: 8px; 
+        }
+        .btn-custom:hover { background-color: #218838; }
+        .btn-sale { 
+            background-color: #17a2b8; 
+            color: white; 
+            border-radius: 8px; 
+            padding: 5px 10px; 
+            text-decoration: none; 
+        }
+        .btn-sale:hover { background-color: #138496; }
+        .btn-warning, .btn-danger, .btn-success, .btn-primary { 
+            border: none; 
+            border-radius: 6px; 
+        }
+        .btn-warning:hover { background-color: #e0a800; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-primary:hover { background-color: #0056b3; }
+        .summary { 
+            margin-bottom: 15px; 
+            background: #111111; 
+            padding: 10px; 
+            border-radius: 8px; 
+        }
+        .summary div { 
+            display: inline-block; 
+            margin-right: 15px; 
+            font-weight: bold; 
+        }
+        .text-truncate { 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            white-space: nowrap; 
+        }
+        input.form-control {
+            background-color: #000000;
+            color: #ffffff;
+            border: 1px solid #555555;
+        }
+        input.form-control:focus {
+            background-color: #111111;
+            color: #ffffff;
+            border-color: #28a745;
+            box-shadow: none;
+        }
         @media (max-width: 768px) {
-            .table th, .table td { font-size: 0.8rem; padding: 3px; }
-            .btn { font-size: 0.75rem; padding: 2px 5px; margin: 1px; }
+            .table th, .table td { font-size: 0.75rem; padding: 3px; }
+            .btn { font-size: 0.7rem; padding: 3px 6px; }
+            h1 { font-size: 1.5rem; }
+            h2 { font-size: 1.2rem; }
         }
     </style>
 </head>
 <body>
 <div class="container">
     <!-- Top Buttons and Search -->
-    <div class="top-buttons mb-3">
-        <form method="GET" class="d-flex mb-2" action="">
+    <div class="top-buttons mb-3 d-flex flex-wrap justify-content-between">
+        <form method="GET" class="d-flex mb-2 w-100 w-md-auto" action="">
             <input class="form-control me-2" type="search" placeholder="Search by Name or Manufacturer" name="q" value="{{ query }}">
             <button class="btn btn-primary" type="submit">Search</button>
         </form>
@@ -38,13 +104,12 @@
             <a href="{% url 'medicine_add' %}" class="btn btn-custom">+ Add Medicine</a>
             <a href="{% url 'sales_list' %}" class="btn btn-success">View Sales</a>
             <a href="{% url 'user_logout' %}" class="btn btn-danger">Logout</a>
-            <!-- New Make a Sale Button -->
             <a href="{% url 'medicine_sell' %}" class="btn-sale">Make a Sale</a>
         </div>
     </div>
 
     <!-- Summary Statistics -->
-    <div class="summary text-light">
+    <div class="summary">
         <div>Total Medicines: {{ medicine_count }}</div>
         <div>Total Quantity: {{ total_quantity }}</div>
         <div>Total Stock Value: Ksh {{ total_stock_value }}</div>
@@ -53,7 +118,7 @@
     <h1 class="text-center mb-4">💊 Available Medicines</h1>
 
     {% if query %}
-        <!-- If search is active, show only matched medicines in a single table -->
+        <!-- If search is active -->
         <div class="table-responsive mb-4">
             <table class="table table-hover table-bordered text-center">
                 <thead>
@@ -71,7 +136,7 @@
                 </thead>
                 <tbody>
                     {% for medicine in medicines %}
-                        <tr class="{% if medicine in low_stock %}table-warning{% elif medicine in soon_to_expire %}table-danger{% endif %}">
+                        <tr>
                             <td class="text-truncate">{{ medicine.name }}</td>
                             <td>{{ medicine.quantity }}</td>
                             <td>Ksh {{ medicine.buying_price }}</td>
@@ -87,15 +152,13 @@
                             </td>
                         </tr>
                     {% empty %}
-                        <tr>
-                            <td colspan="9" class="text-center">No medicines found.</td>
-                        </tr>
+                        <tr><td colspan="9" class="text-center">No medicines found.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     {% else %}
-        <!-- Otherwise, show medicines grouped by categories -->
+        <!-- Grouped by Categories -->
         {% for category in categories %}
             <h2>{{ category.name }}</h2>
             <div class="table-responsive mb-4">
@@ -108,14 +171,14 @@
                             <th>Selling Price</th>
                             <th>Expiry Date</th>
                             <th>Manufacturer</th>
-                            <th>Low stock</th>
+                            <th>Low Stock</th>
                             <th>Expiry Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for medicine in category.medicines.all %}
-                            <tr class="{% if medicine in low_stock %}table-warning{% elif medicine in soon_to_expire %}table-danger{% endif %}">
+                            <tr>
                                 <td class="text-truncate">{{ medicine.name }}</td>
                                 <td>{{ medicine.quantity }}</td>
                                 <td>Ksh {{ medicine.buying_price }}</td>
@@ -131,9 +194,7 @@
                                 </td>
                             </tr>
                         {% empty %}
-                            <tr>
-                                <td colspan="9" class="text-center">No medicines in this category.</td>
-                            </tr>
+                            <tr><td colspan="9" class="text-center">No medicines in this category.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>
