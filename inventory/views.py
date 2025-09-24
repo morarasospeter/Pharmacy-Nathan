@@ -142,8 +142,6 @@ def medicine_sell(request, medicine_id=None):
                     quantity=qty,
                     price=preselected_medicine.selling_price
                 )
-                preselected_medicine.quantity -= qty
-                preselected_medicine.save()
                 sale.total_amount = qty * preselected_medicine.selling_price
                 sale.save()
                 return redirect('sale_receipt', sale_id=sale.id)
@@ -159,8 +157,6 @@ def medicine_sell(request, medicine_id=None):
                     price = float(item['price'])
                     if qty <= 0 or qty > med.quantity:
                         raise ValueError(f"Invalid quantity for {med.name}")
-                    med.quantity -= qty
-                    med.save()
                     SaleItem.objects.create(
                         sale=sale,
                         medicine=med,
