@@ -54,15 +54,13 @@ WSGI_APPLICATION = 'pharmacy.wsgi.application'
 # Database (Postgres on Render)
 # -------------------------
 # Using environment variable if available, else fallback to hardcoded URL
-DATABASE_URL = os.environ.get(
-    "DATABASE_URL",
-    "postgresql://pharmacy_db_62y0_user:Ci8Cdq6NOKoyoJGc9qJzGhB9KeKZdhPQ@dpg-d36j0dndiees73bsu9ng-a.oregon-postgres.render.com:5432/pharmacy_db_62y0"
-)
-
+# Use SQLite instead of PostgreSQL
 DATABASES = {
-    'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',  # This creates/uses a local database file
+    }
 }
-
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
